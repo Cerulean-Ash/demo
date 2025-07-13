@@ -1,0 +1,921 @@
+openapi: 3.1.0
+info:
+  title: Bank API
+  description: "REST API for a Eagle Bank which allows a user to create, fetch, update\
+    \ and delete a bank account and deposit or withdraw money from the account."
+  version: 1.0.0
+servers:
+- url: http://localhost:8080
+  description: Local Development Server
+tags:
+- name: account
+  description: Manage a bank account
+- name: user
+  description: Manage a user
+- name: transaction
+  description: Manage transactions on a bank account
+- name: authentication
+  description: User authentication and JWT token generation
+paths:
+  /v1/users:
+    post:
+      tags:
+      - user
+      summary: Create a new user
+      description: Create a new user
+      operationId: createUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUserRequestDto"
+        required: true
+      responses:
+        "201":
+          description: User has been created successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserResponseDto"
+        "400":
+          description: Invalid details supplied
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/BadRequestErrorResponseDto"
+        "409":
+          description: User with email already exists
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+        "500":
+          description: An unexpected error occurred
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+  /v1/auth/login:
+    post:
+      tags:
+      - authentication
+      summary: Authenticate user and get JWT token
+      description: "Authenticates a user with email and password, returning a JWT\
+        \ token upon successful login."
+      operationId: authenticateUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequestDto"
+        required: true
+      responses:
+        "200":
+          description: "Authentication successful, JWT token returned"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/AuthResponseDto"
+        "400":
+          description: Invalid login request
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/BadRequestErrorResponseDto"
+        "401":
+          description: Unauthorized - Invalid credentials
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+        "500":
+          description: An unexpected error occurred
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+  /v1/accounts:
+    get:
+      tags:
+      - account
+      summary: List accounts
+      description: List accounts
+      operationId: listAccounts
+      responses:
+        "200":
+          description: The list of bank accounts
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ListAccountsResponseDto"
+        "401":
+          description: Access token is missing or invalid
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+        "500":
+          description: An unexpected error occurred
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+      security:
+      - bearerAuth: []
+    post:
+      tags:
+      - account
+      summary: Create a new bank account
+      description: Create a new bank account
+      operationId: createAccount
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAccountRequestDto"
+        required: true
+      responses:
+        "201":
+          description: Bank Account has been created successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/AccountResponseDto"
+        "400":
+          description: Invalid details supplied
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/BadRequestErrorResponseDto"
+        "401":
+          description: Access token is missing or invalid
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+        "403":
+          description: The user is not allowed to access the transaction
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+        "500":
+          description: An unexpected error occurred
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+      security:
+      - bearerAuth: []
+  /v1/accounts/{accountNumber}/transactions:
+    get:
+      tags:
+      - transaction
+      summary: List transactions
+      description: List transactions
+      operationId: listAccountTransaction
+      parameters:
+      - name: accountNumber
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: The list of transaction details
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ListTransactionsResponseDto"
+        "400":
+          description: The request didn't supply all the necessary data
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/BadRequestErrorResponseDto"
+        "401":
+          description: Access token is missing or invalid
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+        "403":
+          description: The user is not allowed to access the transactions
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+        "404":
+          description: Bank account was not found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+        "500":
+          description: An unexpected error occurred
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+      security:
+      - bearerAuth: []
+    post:
+      tags:
+      - transaction
+      summary: Create a transaction
+      description: Create a transaction
+      operationId: createTransaction
+      parameters:
+      - name: accountNumber
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTransactionRequestDto"
+        required: true
+      responses:
+        "201":
+          description: Transaction has been created successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/TransactionResponseDto"
+        "400":
+          description: Invalid details supplied
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/BadRequestErrorResponseDto"
+        "401":
+          description: Access token is missing or invalid
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+        "403":
+          description: The user is not allowed to delete the bank account details
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+        "404":
+          description: Bank account was not found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+        "422":
+          description: Insufficient funds to process transaction
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+        "500":
+          description: An unexpected error occurred
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+      security:
+      - bearerAuth: []
+  /v1/users/{userId}:
+    get:
+      tags:
+      - user
+      summary: Fetch user by ID.
+      description: Fetch user by ID.
+      operationId: fetchUserByID
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: The user details
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserResponseDto"
+        "400":
+          description: The request didn't supply all the necessary data
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/BadRequestErrorResponseDto"
+        "401":
+          description: Access token is missing or invalid
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+        "403":
+          description: The user is not allowed to access the transaction
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+        "404":
+          description: User was not found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+        "500":
+          description: An unexpected error occurred
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+      security:
+      - bearerAuth: []
+    delete:
+      tags:
+      - user
+      summary: Delete user by ID.
+      description: Delete user by ID.
+      operationId: deleteUserByID
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "204":
+          description: The user has been deleted
+        "400":
+          description: The request didn't supply all the necessary data
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/BadRequestErrorResponseDto"
+        "401":
+          description: Access token is missing or invalid
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+        "403":
+          description: The user is not allowed to access the transaction
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+        "404":
+          description: User was not found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+        "409":
+          description: A user cannot be deleted when they are associated with a bank
+            account
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+        "500":
+          description: An unexpected error occurred
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+      security:
+      - bearerAuth: []
+    patch:
+      tags:
+      - user
+      summary: Update user by ID.
+      description: Update user by ID.
+      operationId: updateUserByID
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserDto"
+        required: true
+      responses:
+        "200":
+          description: The updated user details
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserResponseDto"
+        "400":
+          description: The request didn't supply all the necessary data
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/BadRequestErrorResponseDto"
+        "401":
+          description: Access token is missing or invalid
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+        "403":
+          description: The user is not allowed to access the transaction
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+        "404":
+          description: User was not found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+        "500":
+          description: An unexpected error occurred
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+      security:
+      - bearerAuth: []
+  /v1/accounts/{accountNumber}:
+    get:
+      tags:
+      - account
+      summary: Fetch account by account number.
+      description: Fetch account by account number.
+      operationId: fetchAccountByAccountNumber
+      parameters:
+      - name: accountNumber
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: The bank account details
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/AccountResponseDto"
+        "400":
+          description: The request didn't supply all the necessary data
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/BadRequestErrorResponseDto"
+        "401":
+          description: The user was not authenticated
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+        "403":
+          description: The user is not allowed to access the bank account details
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+        "404":
+          description: Bank account was not found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+        "500":
+          description: An unexpected error occurred
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+      security:
+      - bearerAuth: []
+    delete:
+      tags:
+      - account
+      summary: Delete account by account number.
+      description: Delete account by account number.
+      operationId: deleteAccountByAccountNumber
+      parameters:
+      - name: accountNumber
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: The bank account has been deleted
+        "400":
+          description: The request didn't supply all the necessary data
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/BadRequestErrorResponseDto"
+        "401":
+          description: Access token is missing or invalid
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+        "403":
+          description: The user is not allowed to delete the bank account details
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+        "404":
+          description: Bank account was not found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+        "409":
+          description: Account has non-zero balance
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+        "500":
+          description: An unexpected error occurred
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+      security:
+      - bearerAuth: []
+    patch:
+      tags:
+      - account
+      summary: Update account by account number.
+      description: Update account by account number.
+      operationId: updateAccountByAccountNumber
+      parameters:
+      - name: accountNumber
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateAccountRequestDto"
+        required: true
+      responses:
+        "200":
+          description: The updated bank account details
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/AccountResponseDto"
+        "400":
+          description: The request didn't supply all the necessary data
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/BadRequestErrorResponseDto"
+        "401":
+          description: Access token is missing or invalid
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+        "403":
+          description: The user is not allowed to update the bank account details
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+        "404":
+          description: Bank account was not found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+        "500":
+          description: An unexpected error occurred
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+      security:
+      - bearerAuth: []
+  /v1/accounts/{accountNumber}/transactions/{transactionId}:
+    get:
+      tags:
+      - transaction
+      summary: Fetch transaction by ID.
+      description: Fetch transaction by ID.
+      operationId: fetchAccountTransactionByID
+      parameters:
+      - name: accountNumber
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: transactionId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: The transaction details
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/TransactionResponseDto"
+        "400":
+          description: The request didn't supply all the necessary data
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/BadRequestErrorResponseDto"
+        "401":
+          description: Access token is missing or invalid
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+        "403":
+          description: The user is not allowed to access the transaction
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+        "404":
+          description: Bank account was not found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+        "500":
+          description: An unexpected error occurred
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+      security:
+      - bearerAuth: []
+components:
+  schemas:
+    Address:
+      type: object
+      properties:
+        line1:
+          type: string
+          maxLength: 100
+          minLength: 0
+        line2:
+          type: string
+          maxLength: 100
+          minLength: 0
+        line3:
+          type: string
+          maxLength: 100
+          minLength: 0
+        town:
+          type: string
+          maxLength: 50
+          minLength: 0
+        county:
+          type: string
+          maxLength: 50
+          minLength: 0
+        postcode:
+          type: string
+          maxLength: 20
+          minLength: 0
+      required:
+      - county
+      - line1
+      - postcode
+      - town
+    CreateUserRequestDto:
+      type: object
+      properties:
+        email:
+          type: string
+          maxLength: 100
+          minLength: 0
+        password:
+          type: string
+          maxLength: 2147483647
+          minLength: 8
+        name:
+          type: string
+          maxLength: 100
+          minLength: 0
+        address:
+          $ref: "#/components/schemas/Address"
+        phoneNumber:
+          type: string
+          minLength: 1
+          pattern: "^\\+[1-9]\\d{1,14}$"
+      required:
+      - address
+      - email
+      - name
+      - password
+      - phoneNumber
+    UserResponseDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        address:
+          $ref: "#/components/schemas/Address"
+        phoneNumber:
+          type: string
+        email:
+          type: string
+        createdTimestamp:
+          type: string
+          format: date-time
+        updatedTimestamp:
+          type: string
+          format: date-time
+    BadRequestErrorResponseDto:
+      type: object
+      properties:
+        message:
+          type: string
+        details:
+          type: array
+          items:
+            $ref: "#/components/schemas/ErrorDetailDto"
+    ErrorDetailDto:
+      type: object
+      properties:
+        field:
+          type: string
+        message:
+          type: string
+        type:
+          type: string
+    ErrorResponseDto:
+      type: object
+      properties:
+        message:
+          type: string
+    LoginRequestDto:
+      type: object
+      properties:
+        username:
+          type: string
+          minLength: 1
+        password:
+          type: string
+          minLength: 1
+      required:
+      - password
+      - username
+    AuthResponseDto:
+      type: object
+      properties:
+        jwt:
+          type: string
+    CreateAccountRequestDto:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        accountType:
+          type: string
+          enum:
+          - PERSONAL
+          - BUSINESS
+      required:
+      - accountType
+      - name
+    AccountResponseDto:
+      type: object
+      properties:
+        accountNumber:
+          type: string
+        sortCode:
+          type: string
+        name:
+          type: string
+        accountType:
+          type: string
+          enum:
+          - PERSONAL
+          - BUSINESS
+        balance:
+          type: number
+        currency:
+          type: string
+        createdTimestamp:
+          type: string
+          format: date-time
+        updatedTimestamp:
+          type: string
+          format: date-time
+    CreateTransactionRequestDto:
+      type: object
+      properties:
+        amount:
+          type: number
+          minimum: 0.01
+        currency:
+          type: string
+          minLength: 1
+        type:
+          type: string
+          enum:
+          - DEPOSIT
+          - WITHDRAWAL
+        reference:
+          type: string
+          maxLength: 255
+          minLength: 0
+      required:
+      - amount
+      - currency
+      - type
+    TransactionResponseDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        amount:
+          type: number
+        currency:
+          type: string
+        type:
+          type: string
+          enum:
+          - DEPOSIT
+          - WITHDRAWAL
+        reference:
+          type: string
+        userId:
+          type: integer
+          format: int64
+        createdTimestamp:
+          type: string
+          format: date-time
+    UpdateUserDto:
+      type: object
+      properties:
+        email:
+          type: string
+          maxLength: 100
+          minLength: 0
+        name:
+          type: string
+          maxLength: 100
+          minLength: 0
+        address:
+          $ref: "#/components/schemas/Address"
+        phoneNumber:
+          type: string
+          pattern: "^\\+[1-9]\\d{1,14}$"
+    UpdateAccountRequestDto:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 255
+          minLength: 0
+        accountType:
+          type: string
+          enum:
+          - PERSONAL
+          - BUSINESS
+    ListAccountsResponseDto:
+      type: object
+      properties:
+        accounts:
+          type: array
+          items:
+            $ref: "#/components/schemas/AccountResponseDto"
+    ListTransactionsResponseDto:
+      type: object
+      properties:
+        transactions:
+          type: array
+          items:
+            $ref: "#/components/schemas/TransactionResponseDto"
+  securitySchemes:
+    bearerAuth:
+      type: http
+      description: JWT Authentication token (Bearer Token)
+      scheme: bearer
+      bearerFormat: JWT
