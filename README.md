@@ -55,6 +55,22 @@ mvn spring-boot:run
 
 The application will start on `http://localhost:8080`.
 
+## Running Tests and Generating Coverage Report
+
+### Running Tests
+To execute all unit and integration tests:
+```
+mvn test
+```
+
+### Generating Test Coverage Report
+To run tests and generate a detailed HTML test coverage report using Jacoco:
+```
+mvn clean test jacoco:report
+```
+After the test run is successful, open the following file in your web browser:
+`target/site/jacoco/index.html`
+
 ## API Documentation (Swagger UI)
 
 Once the application is running, you can access the interactive API documentation (Swagger UI) at:
@@ -71,7 +87,7 @@ For development purposes, an H2 database console is available at:
 
 Use the following credentials:
 
-* **JDBC URL:** `jdbc:h2:mem:secure_app_db`
+* **JDBC URL:** `jdbc:h2:mem:testdb`
 
 * **Username:** `sa`
 
