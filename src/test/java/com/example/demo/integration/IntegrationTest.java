@@ -231,14 +231,14 @@ public class IntegrationTest {
                 .orElseThrow(() -> new AssertionError("Test user not found after flow"))
                 .getId();
 
-        mockMvc.perform(delete("/v1/users/{id}", userId)
+        mockMvc.perform(delete("/v1/users/{userId}", userId)
                         .header("Authorization", "Bearer " + jwtToken))
                 .andExpect(status().isNoContent());
 
         logger.info("User deleted successfully.");
 
         // Confirm that user is deleted (should return 404)
-        mockMvc.perform(get("/v1/users/{id}", userId)
+        mockMvc.perform(get("/v1/users/{userId}", userId)
                         .header("Authorization", "Bearer " + jwtToken))
                 .andExpect(status().isNotFound());
         logger.info("User verified as not found after deletion.");

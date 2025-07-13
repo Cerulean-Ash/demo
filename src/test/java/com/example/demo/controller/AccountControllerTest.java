@@ -61,7 +61,7 @@ public class AccountControllerTest {
         testAccount.setCurrency("GBP");
         testAccount.setCreatedTimestamp(LocalDateTime.now());
         testAccount.setUpdatedTimestamp(LocalDateTime.now());
-        testAccount.setUser(testUser); // Link account to user
+        testAccount.setUser(testUser);
 
         testAccountResponseDto = AccountResponseDto.fromEntity(testAccount);
     }
