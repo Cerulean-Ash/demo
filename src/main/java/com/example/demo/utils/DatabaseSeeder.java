@@ -56,7 +56,7 @@ public class DatabaseSeeder implements CommandLineRunner {
         if (existingTestUser.isEmpty()) {
             Address testUserAddress = new Address("20 Test Road", "Testing Heights", "Apt 1", "Test City", "Test County", "TS1 1TS");
             // The first argument to the User constructor is now the email address
-            testUser = new User("testuser@eaglebank.com", passwordEncoder.encode("password123"), "USER",
+            testUser = new User("testuser@email.com", passwordEncoder.encode("password123"), "USER",
                     "Test User", testUserAddress, "+447800987654");
             userRepository.save(testUser);
             logger.info("Created testuser: {}", testUser.getEmail());

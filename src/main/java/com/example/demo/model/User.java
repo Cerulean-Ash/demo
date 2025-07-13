@@ -44,7 +44,7 @@ public class User {
     @Column(nullable = false)
     private LocalDateTime updatedTimestamp;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private Set<Account> accounts = new HashSet<>();

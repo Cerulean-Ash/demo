@@ -121,7 +121,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponseDto> handleDataIntegrityViolationException(DataIntegrityViolationException exception, WebRequest request) {
         logger.error("DataIntegrityViolationException: {}", exception.getMessage(), exception);
-        ErrorResponseDto errorDetails = new ErrorResponseDto("Data integrity violation: " + exception.getMessage());
+        ErrorResponseDto errorDetails = new ErrorResponseDto("Data integrity violation");
         return new ResponseEntity<>(errorDetails, HttpStatus.CONFLICT);
     }
 }
