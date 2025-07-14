@@ -39,7 +39,7 @@ The API is secured using JWT (JSON Web Token) based authentication.
 1. **Clone the repository:**
 ```
 git clone <repository-url>
-cd eagle-bank-api
+cd demo
 ```
 2. **Build the project:**
 ```
